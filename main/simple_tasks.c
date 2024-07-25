@@ -1,13 +1,4 @@
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include "esp_log.h"
-#include "driver/uart.h"
-
-#define TASK_HWM_STACK 512
-#define TASK_SINGLE_PARAM_STACK 512
-#define TASK_PINNED_STACK 512
-#define TASK_SDELETE_STACK 512
-#define TASK_
+#include "simple_tasks.h"
 
 /**
  * @brief This is how you get task high watermark
@@ -27,6 +18,12 @@ void task_stack_high_watermark(void *pvParameters)
     }
 }
 
+
+/**
+ * @brief This task takes a single param and uses it
+ * 
+ * @param pvParameters 
+ */
 void task_signle_param(void *pvParameters)
 {
     static const char *TAG_PARAM_TASK = "Task SP";
@@ -41,6 +38,11 @@ void task_signle_param(void *pvParameters)
     }
 }
 
+/**
+ * @brief This task is pinned to specific core
+ * 
+ * @param pvParameters 
+ */
 void task_pinned_to_core(void *pvParameters)
 {
     const char *TAG_PINNED_TASK = "Task PINNED";
@@ -54,6 +56,11 @@ void task_pinned_to_core(void *pvParameters)
     }
 }
 
+/**
+ * @brief This task takes a single param and uses it to loop for n-times, then deletes itself.
+ * 
+ * @param pvParameters 
+ */
 void task_self_delete(void *pvParameters)
 {
     const char* TAG_SDELETE_TASK = "Task SDELETE";
@@ -76,6 +83,11 @@ void task_self_delete(void *pvParameters)
     vTaskDelete(NULL);
 }
 
+/**
+ * @brief This task calls other tasks and handles their execution
+ * 
+ * @param pvParameters 
+ */
 void task_main_handler(void *pvParameters)
 {
     static const char* TAG_MAIN_HANDLER_TASK = "Task Main Handler";
@@ -83,23 +95,6 @@ void task_main_handler(void *pvParameters)
 
     while (1)
     {
-
+		vTaskDelay(pdMS_TO_TICKS(1000));
     }
-}
-
-void app_main()
-{
-    /**
-     * @brief Simple tasks
-     */ 
-    // xTaskCreate(&task_stack_high_watermark, "Hello world task", TASK_HWM_STACK * 4, NULL, 5, NULL);
-    // int task_param = 5;
-    // xTaskCreate(&task_signle_param, "Single param task", TASK_SINGLE_PARAM_STACK * 4, &task_param, 5, NULL);
-    // xTaskCreatePinnedToCore(&task_pinned_to_core, "Pinned task", TASK_PINNED_STACK * 4, NULL, 5, NULL, 0);
-    // xTaskCreate(&task_self_delete, "Task self delete", TASK_SDELETE_STACK*4, &task_param, 5, NULL);
-
-    /**
-     * @brief Interacting tasks
-     */
-
 }

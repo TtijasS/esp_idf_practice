@@ -82,19 +82,3 @@ void task_self_delete(void *pvParameters)
 
     vTaskDelete(NULL);
 }
-
-/**
- * @brief This task calls other tasks and handles their execution
- * 
- * @param pvParameters 
- */
-void task_main_handler(void *pvParameters)
-{
-    static const char* TAG_MAIN_HANDLER_TASK = "Task Main Handler";
-    int *parameter = (int *)pvParameters;
-
-    while (1)
-    {
-		vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}

@@ -6,6 +6,7 @@
 #include "semaphore_tasks.h"
 
 static const char* TAG = "Tasks";
+
 void app_main()
 {
     /**
@@ -64,32 +65,34 @@ void app_main()
      * Same task with arguments, different priority. All get CPU time.
      */
     // We use malloc to share the same variable with multiple tasks
-    // uint32_t *delay_ab = (uint32_t*)malloc(sizeof(uint32_t));
-    // uint32_t *delay_cd = (uint32_t*)malloc(sizeof(uint32_t));
+    uint32_t *delay_100 = (uint32_t*)malloc(sizeof(uint32_t));
+    uint32_t *delay_1000 = (uint32_t*)malloc(sizeof(uint32_t));
 
 
-    // if (delay_ab == NULL || delay_cd == NULL)
-    // {
-    //     ESP_LOGE(TAG, "Failed to malloc");
-    //     free(delay_ab);
-    //     free(delay_cd);
-    //     return;
-    // }
+    if (delay_100 == NULL || delay_1000 == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to malloc");
+        free(delay_100);
+        free(delay_1000);
+        return;
+    }
 
-    // *delay_ab = 100;
-    // *delay_cd = 1050;
+    *delay_100 = 100;
+    *delay_1000 = 1000;
 
-    uint32_t delay_a = 100;
-    uint32_t delay_b = 100;
-    uint32_t delay_c = 1000;
-    uint32_t delay_d = 1000;
+    semaphore_core_0 = xSemaphoreCreateBinary();
+    semaphore_core_1 = xSemaphoreCreateBinary();
+    xSemaphoreGive(semaphore_core_0);
+    xSemaphoreGive(semaphore_core_1);
 
-    semaphore_handle = xSemaphoreCreateBinary();
-    xSemaphoreGive(semaphore_handle);
-    xTaskCreatePinnedToCore(&task_sem_x, "A", TASK_SEM_STACK * 4, &delay_a, 5, NULL, 0);
-    xTaskCreatePinnedToCore(&task_sem_x, "B", TASK_SEM_STACK * 4, &delay_b, 5, NULL, 0);
+    // Tasks running on core 0
+    xTaskCreatePinnedToCore(&task_double_core_semaphore, "----A", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
+    xTaskCreatePinnedToCore(&task_double_core_semaphore, "----B", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
 
-    xTaskCreatePinnedToCore(&task_sem_x, "C", TASK_SEM_STACK * 4, &delay_c, 10, NULL, 1);
-    xTaskCreatePinnedToCore(&task_sem_x, "D", TASK_SEM_STACK * 4, &delay_d, 10, NULL, 1);
-
+    // Tasks running on core 1
+    xTaskCreatePinnedToCore(&task_double_core_semaphore, "C", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
+    xTaskCreatePinnedToCore(&task_double_core_semaphore, "D", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
+    
+    // Task without affinity
+    xTaskCreatePinnedToCore(&task_double_core_semaphore, "--------E", TASK_SEM_STACK * 5, delay_100, 7, NULL, tskNO_AFFINITY);
 }

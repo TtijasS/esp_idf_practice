@@ -4,6 +4,7 @@
 #include "driver/uart.h"
 #include "simple_tasks.h"
 #include "semaphore_tasks.h"
+#include "queue_tasks.h"
 
 static const char* TAG = "Tasks";
 
@@ -19,80 +20,56 @@ void app_main()
     // xTaskCreate(&task_self_delete, "Task self delete", TASK_SDELETE_STACK*4, &task_param, 5, NULL);
 
     /**
-     * @brief Semaphorized tasks, same priority.
+     * @brief Semaphore tasks with different priorities and different core id affinities.
      */
+    // We use malloc to share the same value with different tasks and across the cores.
+    // uint32_t *delay_100 = (uint32_t*)malloc(sizeof(uint32_t));
+    // uint32_t *delay_1000 = (uint32_t*)malloc(sizeof(uint32_t));
 
-    // xSemaphoreGive(semaphore_handle);
-    // All tasks with same priority, different execution times.
-    // All get CPU time.
-    // xTaskCreate(&task_sem_a, "Semaphore task A", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_b, "Semaphore task B", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_c, "Semaphore task C", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_d, "Semaphore task D", TASK_SEM_STACK*4, NULL, 5, NULL);
 
-    /*
-     * Different priorities. Not all get CPU time
-     * A, B, A, C, A, B, A, C,... while D never gets cpu time here, despite being the fastest task
-     */
-    // xTaskCreate(&task_sem_a, "Semaphore task A", TASK_SEM_STACK*4, NULL, 10, NULL);
-    // xTaskCreate(&task_sem_b, "Semaphore task B", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_c, "Semaphore task C", TASK_SEM_STACK*4, NULL, 2, NULL);
-    // xTaskCreate(&task_sem_d, "Semaphore task D", TASK_SEM_STACK*4, NULL, 1, NULL);
+    // if (delay_100 == NULL || delay_1000 == NULL)
+    // {
+    //     ESP_LOGE(TAG, "Failed to malloc");
+    //     free(delay_100);
+    //     free(delay_1000);
+    //     return;
+    // }
 
-    /*
-     * You can create multiple identical tasks.
-     */
-    // xTaskCreate(&task_sem_a, "Semaphore task A", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_b, "Semaphore task B", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_c, "Semaphore task C", TASK_SEM_STACK*4, NULL, 5, NULL);
-    // xTaskCreate(&task_sem_c, "Semaphore task C pr6", TASK_SEM_STACK*4, NULL, 6, NULL);
-    // xTaskCreate(&task_sem_d, "Semaphore task D", TASK_SEM_STACK*4, NULL, 5, NULL);
+    // *delay_100 = 100;
+    // *delay_1000 = 1000;
 
-    /*
-     * Same task with arguments, different priority. All get CPU time.
-     */
-    // uint32_t delay_100 = 100;
-    // uint32_t delay_230 = 230;
-    // uint32_t delay_520 = 520;
-    // uint32_t delay_1230 = 1230;
+    // semaphore_core_0 = xSemaphoreCreateBinary();
+    // semaphore_core_1 = xSemaphoreCreateBinary();
+    // xSemaphoreGive(semaphore_core_0);
+    // xSemaphoreGive(semaphore_core_1);
 
-    // xTaskCreate(&task_sem_x, "A, p5", TASK_SEM_STACK * 4, &delay_100, 5, NULL);
-    // xTaskCreate(&task_sem_x, "B, p5", TASK_SEM_STACK * 4, &delay_230, 5, NULL);
-    // xTaskCreate(&task_sem_x, "C, p5", TASK_SEM_STACK * 4, &delay_520, 5, NULL);
-    // xTaskCreate(&task_sem_x, "D, p5", TASK_SEM_STACK * 4, &delay_1230, 5, NULL);
+    // // Tasks running on core 0
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----A", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----B", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
+
+    // // Tasks running on core 1
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "C", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "D", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
     
-    /*
-     * Same task with arguments, different priority. All get CPU time.
+    // // Task without affinity
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "--------E", TASK_SEM_STACK * 5, delay_100, 7, NULL, tskNO_AFFINITY);
+
+
+    /**
+     * @brief Queue tasks
+     * 
+     * Tasks using queue handle
      */
-    // We use malloc to share the same variable with multiple tasks
-    uint32_t *delay_100 = (uint32_t*)malloc(sizeof(uint32_t));
-    uint32_t *delay_1000 = (uint32_t*)malloc(sizeof(uint32_t));
 
+    queue_handle = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
 
-    if (delay_100 == NULL || delay_1000 == NULL)
+    if (queue_handle == NULL)
     {
-        ESP_LOGE(TAG, "Failed to malloc");
-        free(delay_100);
-        free(delay_1000);
+        ESP_LOGE("Queue handle", "Failed to init queue");
         return;
     }
 
-    *delay_100 = 100;
-    *delay_1000 = 1000;
-
-    semaphore_core_0 = xSemaphoreCreateBinary();
-    semaphore_core_1 = xSemaphoreCreateBinary();
-    xSemaphoreGive(semaphore_core_0);
-    xSemaphoreGive(semaphore_core_1);
-
-    // Tasks running on core 0
-    xTaskCreatePinnedToCore(&task_double_core_semaphore, "----A", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
-    xTaskCreatePinnedToCore(&task_double_core_semaphore, "----B", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
-
-    // Tasks running on core 1
-    xTaskCreatePinnedToCore(&task_double_core_semaphore, "C", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
-    xTaskCreatePinnedToCore(&task_double_core_semaphore, "D", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
-    
-    // Task without affinity
-    xTaskCreatePinnedToCore(&task_double_core_semaphore, "--------E", TASK_SEM_STACK * 5, delay_100, 7, NULL, tskNO_AFFINITY);
+    xTaskCreate(&task_main_producer, "Producer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
+    xTaskCreate(&task_producer_2, "Producer 2", TASK_QUEUE_STACK*4, NULL, 10, NULL);
+    xTaskCreate(&task_consumer, "Consumer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
 }

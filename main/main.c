@@ -40,8 +40,6 @@ void app_main()
 
     // semaphore_core_0 = xSemaphoreCreateBinary();
     // semaphore_core_1 = xSemaphoreCreateBinary();
-    // xSemaphoreGive(semaphore_core_0);
-    // xSemaphoreGive(semaphore_core_1);
 
     // // Tasks running on core 0
     // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----A", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
@@ -52,8 +50,11 @@ void app_main()
     // xTaskCreatePinnedToCore(&task_double_core_semaphore, "D", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
     
     // // Task without affinity
-    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "--------E", TASK_SEM_STACK * 5, delay_100, 7, NULL, tskNO_AFFINITY);
+    // // If E has the highest priority it will use both cores, otherwise it will take CPU time from lower priority tasks
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "--------E", TASK_SEM_STACK * 5, delay_100, 11, NULL, tskNO_AFFINITY);
 
+    // xSemaphoreGive(semaphore_core_0);
+    // xSemaphoreGive(semaphore_core_1);
 
     /**
      * @brief Queue tasks
@@ -61,15 +62,15 @@ void app_main()
      * Tasks using queue handle
      */
 
-    queue_handle = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
+    // queue_handle = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
 
-    if (queue_handle == NULL)
-    {
-        ESP_LOGE("Queue handle", "Failed to init queue");
-        return;
-    }
+    // if (queue_handle == NULL)
+    // {
+    //     ESP_LOGE("Queue handle", "Failed to init queue");
+    //     return;
+    // }
 
-    xTaskCreate(&task_main_producer, "Producer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
-    xTaskCreate(&task_producer_2, "Producer 2", TASK_QUEUE_STACK*4, NULL, 10, NULL);
-    xTaskCreate(&task_consumer, "Consumer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
+    // xTaskCreate(&task_main_producer, "Producer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
+    // xTaskCreate(&task_producer_2, "Producer 2", TASK_QUEUE_STACK*4, NULL, 10, NULL);
+    // xTaskCreate(&task_consumer, "Consumer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
 }

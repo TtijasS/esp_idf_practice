@@ -104,16 +104,19 @@ void task_double_core_semaphore(void *pvParameters)
             vTaskDelay(pdMS_TO_TICKS(delay));
             ESP_LOGI(TAG_TASK_X, "Given by %s, core: %d @ %d (delay %lu ms)", pcTaskGetName(NULL), core_id, xPortGetCoreID(), delay);
             xSemaphoreGive(semaphore_core_0);
-			vTaskDelay(pdMS_TO_TICKS(1000));
-			continue;
+			vTaskDelay(pdMS_TO_TICKS(delay));
+			// taskYIELD();
+			if (core_id == 0)
+				continue;
         }
-        else if ((core_id >= 1) && xSemaphoreTake(semaphore_core_1, portMAX_DELAY) == pdTRUE)
+        if ((core_id != 0) && xSemaphoreTake(semaphore_core_1, portMAX_DELAY) == pdTRUE)
         {
             ESP_LOGI(TAG_TASK_X, "Taken by %s, core: %d @ %d (delay %lu ms)", pcTaskGetName(NULL), core_id, xPortGetCoreID(), delay);
             vTaskDelay(pdMS_TO_TICKS(delay));
             ESP_LOGI(TAG_TASK_X, "Given by %s, core: %d @ %d (delay %lu ms)", pcTaskGetName(NULL), core_id, xPortGetCoreID(), delay);
             xSemaphoreGive(semaphore_core_1);
-			vTaskDelay(pdMS_TO_TICKS(1000));
+			vTaskDelay(pdMS_TO_TICKS(delay));
+			// taskYIELD();
 			continue;
         }
 		ESP_LOGI(TAG_TASK_X, "%s timeout, cpu %d @ %d", pcTaskGetName(NULL), core_id, xPortGetCoreID());

@@ -7,8 +7,6 @@
 #include "esp_log.h"
 #include "driver/uart.h"
 
-#define TASK_SEM_STACK 512
-
 
 extern SemaphoreHandle_t semaphore_core_0;
 extern SemaphoreHandle_t semaphore_core_1;

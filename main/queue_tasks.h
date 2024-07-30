@@ -7,7 +7,6 @@
 #include <esp_log.h>
 #include <driver/uart.h>
 
-#define TASK_QUEUE_STACK 512
 #define QUEUE_LENGTH 10
 #define QUEUE_ITEM_SIZE sizeof(uint8_t)
 

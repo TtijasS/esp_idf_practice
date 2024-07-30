@@ -6,7 +6,9 @@
 #include "semaphore_tasks.h"
 #include "queue_tasks.h"
 
+#define TASK_STACK_SIZE 512
 static const char* TAG = "Tasks";
+
 
 void app_main()
 {
@@ -42,12 +44,12 @@ void app_main()
     // semaphore_core_1 = xSemaphoreCreateBinary();
 
     // // Tasks running on core 0
-    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----A", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
-    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----B", TASK_SEM_STACK * 4, delay_1000, 5, NULL, 0);
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----A", TASK_STACK_SIZE * 4, delay_1000, 5, NULL, 0);
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "----B", TASK_STACK_SIZE * 4, delay_1000, 5, NULL, 0);
 
     // // Tasks running on core 1
-    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "C", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
-    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "D", TASK_SEM_STACK * 4, delay_100, 10, NULL, 1);
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "C", TASK_STACK_SIZE * 4, delay_100, 10, NULL, 1);
+    // xTaskCreatePinnedToCore(&task_double_core_semaphore, "D", TASK_STACK_SIZE * 4, delay_100, 10, NULL, 1);
     
     // // Task without affinity
     // // If E has the highest priority it will use both cores, otherwise it will take CPU time from lower priority tasks
@@ -70,7 +72,14 @@ void app_main()
     //     return;
     // }
 
-    // xTaskCreate(&task_main_producer, "Producer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
-    // xTaskCreate(&task_producer_2, "Producer 2", TASK_QUEUE_STACK*4, NULL, 10, NULL);
-    // xTaskCreate(&task_consumer, "Consumer", TASK_QUEUE_STACK*4, NULL, 10, NULL);
+    // xTaskCreate(&task_main_producer, "Producer", TASK_STACK_SIZE*4, NULL, 10, NULL);
+    // xTaskCreate(&task_producer_2, "Producer 2", TASK_STACK_SIZE*4, NULL, 10, NULL);
+    // xTaskCreate(&task_consumer, "Consumer", TASK_STACK_SIZE*4, NULL, 10, NULL);
+
+    /**
+     * @brief Notification tasks
+     * 
+     */
+
+    
 }

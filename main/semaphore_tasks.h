@@ -5,7 +5,6 @@
 #include <freertos/task.h>
 #include <freertos/semphr.h>
 #include "esp_log.h"
-#include "driver/uart.h"
 
 
 extern SemaphoreHandle_t semaphore_core_0;

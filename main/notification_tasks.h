@@ -4,7 +4,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_log.h>
-#include <driver/uart.h>
 
 extern TaskHandle_t notification_by_a;
 extern TaskHandle_t notification_by_b;

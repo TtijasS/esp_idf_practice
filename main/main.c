@@ -6,6 +6,7 @@
 #include "semaphore_tasks.h"
 #include "queue_tasks.h"
 #include "notification_tasks.h"
+#include "iram_isrs.h"
 
 #define TASK_STACK_SIZE 512
 static const char* TAG = "Tasks";
@@ -86,8 +87,8 @@ void app_main()
     // xTaskCreatePinnedToCore(&task_notificator_b, "Notification task B", TASK_STACK_SIZE*4, NULL, 10, &notification_by_a, 1);
 
     // NotifyWait notifications
-    xTaskCreatePinnedToCore(&task_bit_ntf_1, "Bit ntf 1", TASK_STACK_SIZE*5, NULL, 10, &notification_by_b, 0);
-    xTaskCreatePinnedToCore(&task_bit_ntf_2, "Bit ntf 2", TASK_STACK_SIZE*5, NULL, 10, &notification_by_a, 1);
+    // xTaskCreatePinnedToCore(&task_bit_ntf_1, "Bit ntf 1", TASK_STACK_SIZE*5, NULL, 10, &notification_by_b, 0);
+    // xTaskCreatePinnedToCore(&task_bit_ntf_2, "Bit ntf 2", TASK_STACK_SIZE*5, NULL, 10, &notification_by_a, 1);
 
     /**
      * @brief This is how xTaskNotifyWait reset on entry and reset on exit params work.
@@ -97,4 +98,10 @@ void app_main()
      * if notification hasen't been noted yet
      */
     // xTaskCreatePinnedToCore(&task_how_notify_wait_works, "Bit ntf 2", TASK_STACK_SIZE*4, NULL, 10, &notify_shared, tskNO_AFFINITY);
+
+    /**
+     * @brief UART queue event monitoring task
+     */
+    uart_init(&uart_config);
+    xTaskCreate(&task_uart_isr_monitoring, "UART ISR monitoring task", TASK_ISRUART_STACK_SIZE*4, NULL, 15, NULL);
 }

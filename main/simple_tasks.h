@@ -4,7 +4,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include "esp_log.h"
-#include "driver/uart.h"
 
 #define TASK_HWM_STACK 512
 #define TASK_SINGLE_PARAM_STACK 512

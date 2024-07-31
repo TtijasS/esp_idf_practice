@@ -5,7 +5,6 @@
 #include <freertos/task.h>
 #include <freertos/queue.h>
 #include <esp_log.h>
-#include <driver/uart.h>
 
 #define QUEUE_LENGTH 10
 #define QUEUE_ITEM_SIZE sizeof(uint8_t)

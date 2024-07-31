@@ -5,6 +5,7 @@
 #include "simple_tasks.h"
 #include "semaphore_tasks.h"
 #include "queue_tasks.h"
+#include "notification_tasks.h"
 
 #define TASK_STACK_SIZE 512
 static const char* TAG = "Tasks";
@@ -80,6 +81,20 @@ void app_main()
      * @brief Notification tasks
      * 
      */
+    // Simple notifications
+    // xTaskCreatePinnedToCore(&task_notificator_a, "Notificaton task A", TASK_STACK_SIZE*4, NULL, 10, &notification_by_b, 0);
+    // xTaskCreatePinnedToCore(&task_notificator_b, "Notification task B", TASK_STACK_SIZE*4, NULL, 10, &notification_by_a, 1);
 
-    
+    // NotifyWait notifications
+    xTaskCreatePinnedToCore(&task_bit_ntf_1, "Bit ntf 1", TASK_STACK_SIZE*5, NULL, 10, &notification_by_b, 0);
+    xTaskCreatePinnedToCore(&task_bit_ntf_2, "Bit ntf 2", TASK_STACK_SIZE*5, NULL, 10, &notification_by_a, 1);
+
+    /**
+     * @brief This is how xTaskNotifyWait reset on entry and reset on exit params work.
+     * - reset on exit will reset specified notification handle bits 
+     * after reading the notification
+     * - reset on entry will reset specified notification handle bits 
+     * if notification hasen't been noted yet
+     */
+    // xTaskCreatePinnedToCore(&task_how_notify_wait_works, "Bit ntf 2", TASK_STACK_SIZE*4, NULL, 10, &notify_shared, tskNO_AFFINITY);
 }

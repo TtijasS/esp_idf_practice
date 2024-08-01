@@ -102,6 +102,11 @@ void app_main()
     /**
      * @brief UART queue event monitoring task
      */
-    uart_init(&uart_config);
+    uart_init_with_isr_queue(&uart_config, UART_PORT_NUM, U0TXD, U0RXD, UART_RX_BUFF_SIZE, UART_RX_BUFF_SIZE, &uart_isr_queue_handle, 50, 0);
+    
+    uart_enable_pattern_det_baud_intr(UART_PORT_NUM, '+', UART_PATTERN_SIZE, 9, 0, 0);
+
+    uart_pattern_queue_reset(UART_PORT_NUM, 50);
+
     xTaskCreate(&task_uart_isr_monitoring, "UART ISR monitoring task", TASK_ISRUART_STACK_SIZE*4, NULL, 15, NULL);
 }

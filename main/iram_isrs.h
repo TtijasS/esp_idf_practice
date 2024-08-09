@@ -15,14 +15,17 @@
 #define UART_RX_BUFF_SIZE 1024
 #define UART_TX_BUFF_SIZE 0
 #define UART_EVENT_QUEUE_SIZE 32 /*!< Number of UART ISR events queued*/
-#define UART_PAT_POS_QUEUE_SIZE 8 /*!< Number of queued pattern index positions*/
+#define UART_PAT_QUEUE_SIZE 8 /*!< Number of queued pattern index positions*/
 #define U0TXD 43
 #define U0RXD 44
 #define U1TXD 17
 #define U1RXD 18
 
 #define TASK_ISRUART_STACK_SIZE 1024
-#define UART_PATTERN_SIZE 8
+#define UART_PATTERN_SIZE 7
+#define ENCAPS_FLAG_SIZE UART_PATTERN_SIZE + 1
+#define ENCAPS_START_PAT "+++++++*"
+#define ENCAPS_END_PAT "*+++++++"
 extern QueueHandle_t uart_event_queue_handle;
 
 // configure uart
@@ -33,7 +36,7 @@ extern uart_config_t uart_config_1;
 void uart_init(uart_config_t *uart_config, uart_port_t port_num, int gpio_tx, int gpio_rx, int tx_buff_size, int rx_buff_size);
 void uart_init_with_isr_queue(uart_config_t *uart_config, uart_port_t port_num, int gpio_tx, int gpio_rx, int tx_buff_size, int rx_buff_size, QueueHandle_t *isr_queue_handle, int isr_queue_size, int intr_alloc_flags);
 
-int uart_encapsulation_handler(int *pattern_positions, int *pattern_counter);
+int uart_encapsulation_handler(uart_port_t uart_num, int *detected_patterns, int *encapsulation_counter, int *pat_queue_count);
 
 void task_uart_isr_monitoring(void *);
 #endif // IRAM_ISRS_H

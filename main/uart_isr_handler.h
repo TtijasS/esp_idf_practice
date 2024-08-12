@@ -1,5 +1,5 @@
-#ifndef IRAM_ISRS_H
-#define IRAM_ISRS_H
+#ifndef UART_ISR_HANDLER_H
+#define UART_ISR_HANDLER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,21 +22,27 @@
 #define U1RXD 18
 
 #define TASK_ISRUART_STACK_SIZE 1024
-#define UART_PATTERN_SIZE 7
-#define ENCAPS_FLAG_SIZE UART_PATTERN_SIZE + 1
 #define ENCAPS_START_PAT "+++++++*"
 #define ENCAPS_END_PAT "*+++++++"
+#define UART_PATTERN_SIZE (strlen((const char*)ENCAPS_START_PAT) - 1)
+#define ENCAPS_FLAG_SIZE strlen((const char*)ENCAPS_START_PAT)
 extern QueueHandle_t uart_event_queue_handle;
+extern QueueHandle_t queue_msg_handle;
+
+typedef struct TaskQueueMessage_type
+{
+	size_t msg_size;
+	uint8_t *msg_ptr;
+	
+}TaskQueueMessage_type;
 
 // configure uart
 extern uart_config_t uart_config;
 extern uart_config_t uart_config_1;
 
 // init uart
-void uart_init(uart_config_t *uart_config, uart_port_t port_num, int gpio_tx, int gpio_rx, int tx_buff_size, int rx_buff_size);
 void uart_init_with_isr_queue(uart_config_t *uart_config, uart_port_t port_num, int gpio_tx, int gpio_rx, int tx_buff_size, int rx_buff_size, QueueHandle_t *isr_queue_handle, int isr_queue_size, int intr_alloc_flags);
 
-int uart_encapsulation_handler(uart_port_t uart_num, int *detected_patterns, int *encapsulation_counter, int *pat_queue_count);
-
 void task_uart_isr_monitoring(void *);
-#endif // IRAM_ISRS_H
+void task_receive_message(void *);
+#endif // UART_ISR_HANDLER_H

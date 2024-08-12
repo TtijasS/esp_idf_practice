@@ -1,10 +1,12 @@
 #include "queue_tasks.h"
 
 QueueHandle_t queue_handle;
+QueueHandle_t queueu_msg_handle;
+
 
 void task_main_producer(void *pvParameters)
 {
-	const char* TAG_PROD = "Producer";
+	const char *TAG_PROD = "Producer";
 
 	uint8_t item = 0;
 	while (1)
@@ -13,7 +15,8 @@ void task_main_producer(void *pvParameters)
 		{
 			ESP_LOGI(TAG_PROD, "Item %d sent to queue", item);
 		}
-		else{
+		else
+		{
 			ESP_LOGI(TAG_PROD, "Failed to send item %d", item);
 		}
 		vTaskDelay(pdMS_TO_TICKS(1000));
@@ -23,7 +26,7 @@ void task_main_producer(void *pvParameters)
 
 void task_producer_2(void *pvParameters)
 {
-	const char* TAG_PROD = "Producer";
+	const char *TAG_PROD = "Producer";
 
 	uint8_t item = 255;
 	while (1)
@@ -32,7 +35,8 @@ void task_producer_2(void *pvParameters)
 		{
 			ESP_LOGI(TAG_PROD, "Item %d sent to queue", item);
 		}
-		else{
+		else
+		{
 			ESP_LOGI(TAG_PROD, "Failed to send item %d", item);
 		}
 		vTaskDelay(pdMS_TO_TICKS(500));
@@ -42,7 +46,7 @@ void task_producer_2(void *pvParameters)
 
 void task_consumer(void *pvParameters)
 {
-	const char* TAG_CONS = "Consumer";
+	const char *TAG_CONS = "Consumer";
 	uint8_t item;
 	while (1)
 	{
@@ -61,8 +65,7 @@ void task_consumer_core_0(void *pvParameters)
 	{
 		if (xQueueReceive(queue_handle, &item, portMAX_DELAY) == pdPASS)
 		{
-			
 		}
 	}
-
 }
+

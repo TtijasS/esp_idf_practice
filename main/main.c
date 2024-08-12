@@ -6,7 +6,7 @@
 #include "semaphore_tasks.h"
 #include "queue_tasks.h"
 #include "notification_tasks.h"
-#include "iram_isrs.h"
+#include "uart_isr_handler.h"
 
 #define TASK_STACK_SIZE 512
 static const char* TAG = "Tasks";
@@ -102,9 +102,12 @@ void app_main()
     /**
      * @brief UART queue event monitoring task
      */
+    queue_msg_handle = xQueueCreate(4, sizeof(TaskQueueMessage_type));
+
     uart_init_with_isr_queue(&uart_config, UART_NUM, U0TXD, U0RXD, UART_RX_BUFF_SIZE, UART_RX_BUFF_SIZE, &uart_event_queue_handle, UART_EVENT_QUEUE_SIZE, 0);
     ESP_ERROR_CHECK(uart_enable_pattern_det_baud_intr(UART_NUM, '+', UART_PATTERN_SIZE, 8, 0, 0));
     uart_pattern_queue_reset(UART_NUM, UART_PAT_QUEUE_SIZE);
 
-    xTaskCreate(&task_uart_isr_monitoring, "UART ISR monitoring task", TASK_ISRUART_STACK_SIZE*4, NULL, 18, NULL);
+    xTaskCreatePinnedToCore(&task_uart_isr_monitoring, "UART ISR monitoring task", TASK_ISRUART_STACK_SIZE*4, NULL, 18, NULL, 0);
+    xTaskCreatePinnedToCore(&task_receive_message, "Queue message write task", TASK_STACK_SIZE*4, NULL, 10, NULL, 1);
 }
